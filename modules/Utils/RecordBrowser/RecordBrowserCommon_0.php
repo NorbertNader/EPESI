@@ -267,6 +267,80 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     
     	return $ret;
     }
+
+    public static function display_file($r,$nolink,$desc)
+    {
+        $content = '';
+        if(isset($r['id'])) {
+            $sql = 'SELECT uff.filename as filename,'.
+                ' uff.hash as hash,'.
+                ' psf.field_name as field_name,'.
+                ' psf.created_on as created_on, '.
+                ' psf.created_by as created_by, '.
+                ' psf.filestorage_id as filestorage_id, '.
+                ' psf.id as file_id '.
+                ' FROM utils_recordbrowser_files psf'.
+                ' INNER JOIN utils_filestorage_files uff ON psf.filestorage_id=uff.id'.
+                ' WHERE psf.record_id='.$r['id'].' AND psf.deleted = 0'.
+                ' ORDER BY psf.created_on DESC;';
+            $filestorage_files_record = DB::GetAll($sql);
+            if(isset($filestorage_files_record)) {
+                foreach ($filestorage_files_record as $file) {
+                    if ($file['field_name'] == $desc['id']) {
+                        $contact = CRM_ContactsCommon::get_contact_by_user_id($file['created_by']);
+                        $contact = $contact['first_name'].' '.$contact['last_name'];
+                        $content = $content . '<a '.self::get_file_leightbox($file,$view_link).' >' . $file['filename'] . '</a>, '.$file['created_on'].', '.$contact.'<br>';
+                    }
+                }
+            }
+        } else {
+            $content = "<div id=\"dropzone\" class=\"dropzone " . $desc['id'] . "\"></div><br>";
+            load_css('modules/Utils/RecordBrowser/libs/basic.css');
+            load_css('modules/Utils/RecordBrowser/libs/dropzone.css');
+            load_js('modules/Utils/RecordBrowser/libs/dist/dropzone.js');
+            eval_js('jq("div.dropzone.' . $desc['id'] . '").dropzone({ url:"/modules/Utils/RecordBrowser/fileupload.php?cid="+Epesi.client_id+"&action=add&field=' . $desc['id'] . '",uploadMultiple:true,addRemoveLinks:true});');
+        }
+        return $content;
+    }
+
+    public static function get_file_leightbox($file, & $view_link = '') {
+        static $th;
+        if(!isset($th)) $th = Base_ThemeCommon::init_smarty();
+        $lid = 'get_files_'.md5(serialize($file));
+        $close_leightbox_js = 'leightbox_deactivate(\''.$lid.'\');';
+        $label = __('View');
+        $th->assign('download_options_id','file_download_options_'.$file['file_id']);
+        $view_link = 'modules/Utils/RecordBrowser/get.php?'.http_build_query(array('id'=>$file['file_id'],'cid'=>CID,'view'=>1));
+        $links['view'] = '<a href="'.$view_link.'" target="_blank" onClick="'.$close_leightbox_js.'">'.$label.'</a><br>';
+        $links['download'] = '<a href="modules/Utils/RecordBrowser/get.php?'.http_build_query(array('id'=>$file['file_id'],'cid'=>CID)).
+            '" onClick="'.$close_leightbox_js.'">'.
+            __('Download').'</a><br>';
+        load_js('modules/Utils/RecordBrowser/remote.js');
+        $deleteFileHref = Utils_RecordBrowser::$rb_obj->create_callback_href(array(__CLASS__, 'soft_delete_file'), array(
+            $file['file_id']
+        ));
+        $links['delete_file'] = '<a '.$deleteFileHref.' >'.__('Delete file').'</a><br>';
+        $meta = Utils_FileStorageCommon::meta($file['filestorage_id']);
+        $f_filename = $meta['file'];
+        $th->assign('filename',$file['filename']);
+        if(!file_exists($f_filename)) return 'missing file: '.$f_filename;
+        $th->assign('file_size',__('File size: %s',array(filesize_hr($f_filename))));
+        foreach($links as $key=>&$l) {
+            $th->assign($key,$l);
+            $l = Base_ThemeCommon::parse_links($key, $l);
+        }
+        $th->assign('__link',$links);
+        $th->assign('labels',array(
+            'filename'=>__('Filename'),
+            'file_size'=>__('File size')
+        ));
+        ob_start();
+        Base_ThemeCommon::display_smarty($th,'Premium_Laycom','file_leightbox');
+        $c = ob_get_clean();
+        Libs_LeightboxCommon::display($lid,$c,__('File'));
+        return Libs_LeightboxCommon::get_open_href($lid);
+    }
+    
     public static function multiselect_from_common($arrid) {
         return '__COMMON__::'.$arrid;
     }
@@ -3394,8 +3468,24 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $val = '<div class="static_field" id="' . $field_id . '">' . $value . '</div>';
         $form->setDefaults(array($field => $val));
     }
-    
-    public static function cron() {
+
+    public static function QFfield_file(&$form, $field, $label, $mode, $default, $desc, $rb_obj)
+    {
+        if ($mode != 'add' && false == Utils_RecordBrowserCommon::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj)) {
+            $content = "<div id=\"dropzone\" class=\"dropzone " . $desc['id'] . "\"></div><br>";
+            load_css('modules/Utils/RecordBrowser/libs/basic.css');
+            load_css('modules/Utils/RecordBrowser/libs/dropzone.css');
+            load_js('modules/Utils/RecordBrowser/libs/dist/dropzone.js');
+            eval_js('jq("div.dropzone.' . $desc['id'] . '").dropzone({ url:"/modules/Utils/RecordBrowser/fileupload.php?cid="+Epesi.client_id+"&action=add&field=' . $desc['id'] . '",uploadMultiple:true,addRemoveLinks:true});');
+
+            $content .= Utils_RecordBrowserCommon::get_val($rb_obj->tab, $desc['id'], $rb_obj->record, true);
+            $form->addElement('static', $field, $label, $content, array('id' => $field))->freeze();
+        } else {
+            Utils_RecordBrowserCommon::QFfield_calculated($form, $field, $label, $mode, $default, $desc, $rb_obj);
+        }
+    }
+
+            public static function cron() {
         return array('indexer' => 10);
     }
 
