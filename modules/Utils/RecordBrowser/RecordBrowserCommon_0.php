@@ -268,6 +268,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     	return $ret;
     }
 
+    //region File
     public static function display_file($r,$nolink,$desc)
     {
         $content = '';
@@ -340,6 +341,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         Libs_LeightboxCommon::display($lid,$c,__('File'));
         return Libs_LeightboxCommon::get_open_href($lid);
     }
+    //endregion
     
     public static function multiselect_from_common($arrid) {
         return '__COMMON__::'.$arrid;
@@ -3469,6 +3471,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $form->setDefaults(array($field => $val));
     }
 
+    //region File
     public static function QFfield_file(&$form, $field, $label, $mode, $default, $desc, $rb_obj)
     {
         if ($mode != 'add' && false == Utils_RecordBrowserCommon::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj)) {
@@ -3485,7 +3488,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         }
     }
 
-            public static function cron() {
+    public static function soft_delete_file($file_id) {
+        $sql = "UPDATE premium_salesopportunity_files SET deleted=1 WHERE id=%d";
+        DB::Execute($sql,array(intval($file_id)));
+        location(array());
+    }
+    //endregion
+
+    public static function cron() {
         return array('indexer' => 10);
     }
 
