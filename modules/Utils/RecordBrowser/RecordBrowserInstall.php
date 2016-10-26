@@ -77,6 +77,8 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
             deleted I4'
 		);
 
+        Utils_RecordBrowserCommon::register_datatype('recordbrowser_file', 'Utils_RecordBrowserCommon', 'recordbrowser_file_datatype');
+
 		return true;
 	}
 	
