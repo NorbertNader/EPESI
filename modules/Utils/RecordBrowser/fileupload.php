@@ -25,7 +25,7 @@ switch($_REQUEST['action']) {
         foreach ($_FILES['file']['tmp_name'] as $key => $file) {
             if (is_uploaded_file($file)) {
                 $file_content = file_get_contents($file);
-                file_put_contents(DATA_DIR . '/Utils_RecordBrwoser/' . $_FILES['file']['name'][$key], $file_content);
+                file_put_contents(DATA_DIR . '/Utils_RecordBrowser/' . $_FILES['file']['name'][$key], $file_content);
             }
         }
         break;

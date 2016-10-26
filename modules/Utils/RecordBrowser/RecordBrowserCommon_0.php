@@ -269,6 +269,14 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 
     //region File
+    public static function recordbrowser_file_datatype($field = array())
+    {
+        if (!isset($field['QFfield_callback'])) $field['QFfield_callback'] = array('Utils_RecordBrowserCommon', 'QFfield_file');
+        if (!isset($field['display_callback'])) $field['display_callback'] = array('Utils_RecordBrowserCommon', 'display_file');
+        $field['type'] = 'file';
+        return $field;
+    }
+
     public static function display_file($r,$nolink,$desc)
     {
         $content = '';
