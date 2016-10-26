@@ -1891,7 +1891,8 @@ class Utils_RecordBrowser extends Module {
             'text'=>__('Text'),
             'long text'=>__('Long text'),
             'select'=>__('Select field'),
-            'calculated'=>__('Calculated')
+            'calculated'=>__('Calculated'),
+            'file'=>__('File')
 	
         );
         natcasesort($data_type);
