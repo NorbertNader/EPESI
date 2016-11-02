@@ -281,7 +281,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         return $field;
     }
 
-    public static function display_file($r,$nolink,$desc)
+    public static function display_file($r, $nolink=false, $desc=null, $tab=null)
     {
         $content = '';
         if(isset($r['id'])) {
@@ -293,8 +293,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 ' rbf.filestorage_id as filestorage_id, '.
                 ' rbf.id as file_id '.
                 ' FROM recordbrowser_files rbf'.
-                ' INNER JOIN utils_filestorage_files uff ON psf.filestorage_id=uff.id'.
-                ' WHERE rbf.record_id='.$r['id'].' AND rbf.deleted = 0'.
+                ' INNER JOIN utils_filestorage_files uff ON rbf.filestorage_id=uff.id'.
+                ' WHERE rbf.record_id = '.$r['id'].' AND rbf.recordset = "'.$tab.'" AND rbf.deleted = 0'.
                 ' ORDER BY rbf.created_on DESC;';
             $filestorage_files_record = DB::GetAll($sql);
             if(isset($filestorage_files_record)) {
@@ -311,7 +311,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             load_css('modules/Utils/RecordBrowser/lib/dropzone/dist/basic.css');
             load_css('modules/Utils/RecordBrowser/lib/dropzone/dist/dropzone.css');
             load_js('modules/Utils/RecordBrowser/lib/dropzone/dist/dropzone.js');
-            eval_js('jq("div.dropzone.' . $desc['id'] . '").dropzone({ url:'.EPESI_URL.'modules/Utils/RecordBrowser/fileupload.php?cid="+Epesi.client_id+"&action=add&field=' . $desc['id'] . '",uploadMultiple:true,addRemoveLinks:true});');
+            eval_js('jq("div.dropzone.' . $desc['id'] . '").dropzone({ 
+            url:"'.EPESI_URL.'modules/Utils/RecordBrowser/fileupload.php?cid="+Epesi.client_id
+            +"&action=add&field=' . $desc['id'] . '",uploadMultiple:true,addRemoveLinks:true
+            });
+            jq("div.dropzone").parent().css("min-height","150px");
+            ');
         }
         return $content;
     }
@@ -3492,7 +3497,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             load_css('modules/Utils/RecordBrowser/lib/dropzone/dist/basic.css');
             load_css('modules/Utils/RecordBrowser/lib/dropzone/dist/dropzone.css');
             load_js('modules/Utils/RecordBrowser/lib/dropzone/dist/dropzone.js');
-            eval_js('jq("div.dropzone.' . $desc['id'] . '").dropzone({ url:"'.EPESI_URL.'modules/Utils/RecordBrowser/fileupload.php?cid="+Epesi.client_id+"&action=add&field=' . $desc['id'] . '",uploadMultiple:true,addRemoveLinks:true});');
+            eval_js('jq("div.dropzone.' . $desc['id'] . '").dropzone({ 
+            url:"'.EPESI_URL.'modules/Utils/RecordBrowser/fileupload.php?cid="+Epesi.client_id
+            +"&action=add&field=' . $desc['id'] . '",uploadMultiple:true,addRemoveLinks:true
+            });
+            jq("div.dropzone").parent().css("min-height","150px");
+            ');
 
             $content .= Utils_RecordBrowserCommon::get_val($rb_obj->tab, $desc['id'], $rb_obj->record, true);
             $form->addElement('static', $field, $label, $content, array('id' => $field))->freeze();
