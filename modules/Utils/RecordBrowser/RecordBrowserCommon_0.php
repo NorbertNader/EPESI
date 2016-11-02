@@ -291,7 +291,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 ' rbf.created_on as created_on, '.
                 ' rbf.created_by as created_by, '.
                 ' rbf.filestorage_id as filestorage_id, '.
-                ' rbf.id as file_id '.
+                ' rbf.id as file_id, '.
+                ' rbf.recordset as tab '.
                 ' FROM recordbrowser_files rbf'.
                 ' INNER JOIN utils_filestorage_files uff ON rbf.filestorage_id=uff.id'.
                 ' WHERE rbf.record_id = '.$r['id'].' AND rbf.recordset = "'.$tab.'" AND rbf.deleted = 0'.
@@ -328,9 +329,20 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
         $close_leightbox_js = 'leightbox_deactivate(\''.$lid.'\');';
         $label = __('View');
         $th->assign('download_options_id','file_download_options_'.$file['file_id']);
-        $view_link = 'modules/Utils/RecordBrowser/get.php?'.http_build_query(array('id'=>$file['file_id'],'cid'=>CID,'view'=>1));
+        $view_link = 'modules/Utils/RecordBrowser/get.php?'.http_build_query(
+                array(
+                    'id'=>$file['file_id'],
+                    'cid'=>CID,
+                    'view'=>1
+                )
+            );
         $links['view'] = '<a href="'.$view_link.'" target="_blank" onClick="'.$close_leightbox_js.'">'.$label.'</a><br>';
-        $links['download'] = '<a href="modules/Utils/RecordBrowser/get.php?'.http_build_query(array('id'=>$file['file_id'],'cid'=>CID)).
+        $links['download'] = '<a href="modules/Utils/RecordBrowser/get.php?'.http_build_query(
+                array(
+                    'id'=>$file['file_id'],
+                    'cid'=>CID
+                )
+            ).
             '" onClick="'.$close_leightbox_js.'">'.
             __('Download').'</a><br>';
         load_js('modules/Utils/RecordBrowser/remote.js');
