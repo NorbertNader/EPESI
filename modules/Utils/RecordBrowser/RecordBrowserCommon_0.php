@@ -271,9 +271,13 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     //region File
     public static function recordbrowser_file_datatype($field = array())
     {
+        //this runs on install
         if (!isset($field['QFfield_callback'])) $field['QFfield_callback'] = array('Utils_RecordBrowserCommon', 'QFfield_file');
         if (!isset($field['display_callback'])) $field['display_callback'] = array('Utils_RecordBrowserCommon', 'display_file');
-        $field['type'] = 'file';
+        $field['type'] = 'calculated';
+        $field['style'] = $field['param'];
+        $field['tooltip'] = isset($field['tooltip'])? $field['tooltip']: 0;
+        $field['param'] = Utils_RecordBrowserCommon::actual_db_type('text',128);
         return $field;
     }
 
@@ -304,9 +308,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             }
         } else {
             $content = "<div id=\"dropzone\" class=\"dropzone " . $desc['id'] . "\"></div><br>";
-            load_css('modules/Utils/RecordBrowser/libs/basic.css');
-            load_css('modules/Utils/RecordBrowser/libs/dropzone.css');
-            load_js('modules/Utils/RecordBrowser/libs/dist/dropzone.js');
+            load_css('modules/Utils/RecordBrowser/lib/dropzone/dist/basic.css');
+            load_css('modules/Utils/RecordBrowser/lib/dropzone/dist/dropzone.css');
+            load_js('modules/Utils/RecordBrowser/lib/dropzone/dist/dropzone.js');
             eval_js('jq("div.dropzone.' . $desc['id'] . '").dropzone({ url:'.EPESI_URL.'modules/Utils/RecordBrowser/fileupload.php?cid="+Epesi.client_id+"&action=add&field=' . $desc['id'] . '",uploadMultiple:true,addRemoveLinks:true});');
         }
         return $content;
@@ -3485,9 +3489,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     {
         if ($mode != 'add' && false == Utils_RecordBrowserCommon::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj)) {
             $content = "<div id=\"dropzone\" class=\"dropzone " . $desc['id'] . "\"></div><br>";
-            load_css('modules/Utils/RecordBrowser/libs/basic.css');
-            load_css('modules/Utils/RecordBrowser/libs/dropzone.css');
-            load_js('modules/Utils/RecordBrowser/libs/dist/dropzone.js');
+            load_css('modules/Utils/RecordBrowser/lib/dropzone/dist/basic.css');
+            load_css('modules/Utils/RecordBrowser/lib/dropzone/dist/dropzone.css');
+            load_js('modules/Utils/RecordBrowser/lib/dropzone/dist/dropzone.js');
             eval_js('jq("div.dropzone.' . $desc['id'] . '").dropzone({ url:"'.EPESI_URL.'modules/Utils/RecordBrowser/fileupload.php?cid="+Epesi.client_id+"&action=add&field=' . $desc['id'] . '",uploadMultiple:true,addRemoveLinks:true});');
 
             $content .= Utils_RecordBrowserCommon::get_val($rb_obj->tab, $desc['id'], $rb_obj->record, true);
