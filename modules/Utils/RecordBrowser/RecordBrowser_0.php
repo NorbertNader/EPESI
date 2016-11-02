@@ -979,10 +979,11 @@ class Utils_RecordBrowser extends Module {
 		}
 
         $access = $this->get_access($mode=='history'?'view':$mode, isset($this->record)?$this->record:$this->custom_defaults);
-        if ($mode=='edit' || $mode=='add')
-            $this->view_fields_permission = $this->get_access('view', isset($this->record)?$this->record:$this->custom_defaults);
-        else
+        if ($mode=='edit' || $mode=='add') {
+            $this->view_fields_permission = $this->get_access('view', isset($this->record) ? $this->record : $this->custom_defaults);
+        } else {
             $this->view_fields_permission = $access;
+        }
 
         if ($mode!='add' && (!$access || $this->record==null)) {
             if (Base_AclCommon::i_am_admin()) {
@@ -1070,6 +1071,39 @@ class Utils_RecordBrowser extends Module {
                 if (!isset($values[$k])) $values[$k] = $v;
             if ($mode=='add') {
                 $id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
+                $files = isset($_SESSION['client']['recordbrowser_file']) ? $_SESSION['client']['recordbrowser_file'][CID]['files'] : '';
+                if (!empty($files) && $id!==null && is_numeric($id)) {
+                    foreach ($files as $file) {
+                        if (!empty($file['file']['name'])) {
+                            $fsid = Utils_FileStorageCommon::write_file(
+                                $file['file']['name'][0], DATA_DIR . '/Utils_RecordBrowser/' . basename($file['file']['name'][0])
+                            );
+                            $user_logn = Base_UserCommon::get_my_user_login();
+                            $created_by = Base_UserCommon::get_user_id($user_logn);
+                            DB::Execute('INSERT INTO 
+                                    recordbrowser_files(
+                                        recordset,
+                                        record_id,
+                                        field_name,
+                                        filestorage_id,
+                                        created_on,
+                                        created_by,
+                                        deleted
+                                    ) VALUES(%s,%d,%s,%d,%s,%d,0)',
+                                array(
+                                    $this->tab,
+                                    intval($id),
+                                    $file['field'],
+                                    intval($fsid),
+                                    date('Y-m-d H:i:s'),
+                                    intval($created_by)
+                                )
+                            );
+                            Utils_FileStorageCommon::add_link($this->tab.'_file/' . DB::Insert_ID('recordbrowser_files', 'id'), $fsid);
+                        }
+                    }
+                }
+                $_SESSION['client']['recordbrowser_file'] = '';
                 self::$clone_result = $id;
                 self::$clone_tab = $this->tab;
                 return $this->back();
@@ -1892,7 +1926,7 @@ class Utils_RecordBrowser extends Module {
             'long text'=>__('Long text'),
             'select'=>__('Select field'),
             'calculated'=>__('Calculated'),
-            'file'=>__('File')
+            'recordbrowser_file'=>__('File')
 	
         );
         natcasesort($data_type);
