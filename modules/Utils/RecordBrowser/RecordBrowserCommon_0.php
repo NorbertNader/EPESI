@@ -549,8 +549,8 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     		$access = self::get_access($tab, 'selection', null, true);
     		if ($access===false) unset($ret[$tab]);
     		if ($access===true) continue;
-    		if (is_array($access) || $access instanceof Utils_RecordBrowswer_CritsInterface) {
-    			if((is_array($crits) && $crits) || $crits instanceof Utils_RecordBrowswer_CritsInterface)
+    		if (is_array($access) || $access instanceof Utils_RecordBrowser_CritsInterface) {
+    			if((is_array($crits) && $crits) || $crits instanceof Utils_RecordBrowser_CritsInterface)
     				$ret[$tab] = self::merge_crits($crits, $access);
     			else
     				$ret[$tab] = $access;
@@ -2246,8 +2246,12 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function no_wrap($s) {
         $content_no_wrap = $s;
         preg_match_all('/>([^\<\>]*)</', $s, $match);
-		if (empty($match[1])) return str_replace(' ','&nbsp;', $s);
-        foreach($match[1] as $v) $content_no_wrap = str_replace($v, str_replace(' ','&nbsp;', $v), $content_no_wrap);
+		if (empty($match[1])) return str_replace(' ','&nbsp;', $s); // if no matches[1] then that's not html
+        // below handle html
+        foreach ($match[1] as $v) {
+            if ($v === ' ') continue; // do not replace single space in html
+            $content_no_wrap = str_replace($v, str_replace(' ', '&nbsp;', $v), $content_no_wrap);
+        }
         return $content_no_wrap;
     }
     public static function get_new_record_href($tab, $def, $id='none', $check_defaults=true){
@@ -3456,6 +3460,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
             		$vals = self::decode_record_token($tab_id, $param['single_tab']);
             		if (!$vals) continue;
             		list($t,$rid) = $vals;
+                    if (!isset($tab_crits[$t])) continue;
             		$comp[$tab_id] = self::call_select_item_format_callback($multi_adv_params['format_callback'], $tab_id, array($rb_obj->tab, $tab_crits[$t], $multi_adv_params['format_callback'], $param));
             	}
             }
