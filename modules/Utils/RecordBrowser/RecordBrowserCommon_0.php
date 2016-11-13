@@ -1953,7 +1953,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
 			}
             if ($callback_ret instanceof Utils_RecordBrowser_CritsInterface) {
                 $action2 = $action == 'browse' ? 'view' : $action;
-                $crits_raw[$action2][] = $callback_ret;
+                $crits_raw[$action2]['callback'] = $callback_ret;
                 $crits[$action2] = self::merge_crits($crits[$action2], $callback_ret);
             }
 			if ($return_crits) {
@@ -1961,6 +1961,9 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                     $action = 'view';
                 }
 			    if($return_in_array) return $crits_raw[$action];
+                if (is_bool($callback_ret)) {
+                    return $callback_ret;
+                }
 			    return $crits[$action];
 			}
 			if ($action=='browse') {
@@ -1970,14 +1973,19 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                 $ret = $callback_ret;
             } else {
                 $ret = false;
-                $blocked_fields = array();
+                $blocked_fields = null;
                 if ($action != 'browse' && $action != 'clone') {
                     foreach ($crits_raw[$action] as $rule_id => $c) {
                         if ($record != null && !self::check_record_against_crits($tab, $record, $c)) {
-                            continue;
+                        	if ($rule_id == 'callback') {
+                        		$ret = false;
+                        		break;
+                        	}
+                        	else continue;
                         }
-                        if (!$ret) {
-                            $ret = true;
+                        $ret = true;
+                        if ($rule_id == 'callback') continue;
+                        if ($blocked_fields === null) {
                             $blocked_fields = $fields[$rule_id];
                         } else {
                             foreach ($blocked_fields as $f => $v) {
@@ -1988,6 +1996,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
                         }
                     }
                 }
+                if ($blocked_fields === null) $blocked_fields = array();
             }
         }
         if ($action!=='browse' && $action!=='delete') {
