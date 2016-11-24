@@ -3,12 +3,12 @@ EPESI CHANGELOG
 
 (Dev) means that this change is significant only for developers.
 
-CURRENT
+RELEASE 1.8.1-20161121
 -------
 
 ### Added
+- Allow to define fields to use as default record label
 - Allow to assign multiple contacts to company by related field (georgehristov)
-- New caching engine
 - New console commands:
     * create backups of db (mysql only) and files
     * enable all disabled modules at once
@@ -31,6 +31,15 @@ CURRENT
 ### Changed
 - Always use default linked label for select field suggestbox
 - Error reporting - better console readability
+
+RELEASE 1.8.1-20161118
+-------
+
+Replaced by rev. 20161121.
+
+Added in this revision PhpFastCache library requires PHP 5.5,
+but EPESI works fine with PHP 5.4.
+Cache engine has been reverted to the old one in rev. 20161121.
 
 
 RELEASE 1.8.0-20160926

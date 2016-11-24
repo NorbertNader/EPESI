@@ -906,10 +906,12 @@ class ModuleManager {
 		$file_lines = file($file);
 
 		$VA_regex = '/Direct access forbidden/i';
+        $use_keyword_regex = '/^\s*use/i';
 
 		foreach ($file_lines as $i => $line) {
 			if ($i >= $start && $i < $end) continue;
 			if (preg_match($VA_regex, $line)) continue;
+			if (preg_match($use_keyword_regex, $line)) continue;
 			$file_content .= $line;
 		}
         $tmp_file = tmpfile();
@@ -1103,5 +1105,8 @@ class ModuleManager {
             $args[] = $state;
         }
         DB::Execute($sql, $args);
+        $enabled_modules = DB::Affected_Rows();
+        Cache::clear();
+        return $enabled_modules;
     }
 }
