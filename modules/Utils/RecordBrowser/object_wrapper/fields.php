@@ -433,6 +433,17 @@ class RBO_Field_File extends RBO_FieldDefinition {
     public function __construct($display_name) {
         parent::__construct($display_name, self::type);
     }
+    
+    public function get_definition() {
+        if (!is_numeric($this->param))
+            trigger_error("Text field length not set", E_USER_ERROR);
+        return parent::get_definition();
+    }
+
+    public function set_length($length) {
+        $this->param = $length;
+        return $this;
+    }
 
 }
 ?>

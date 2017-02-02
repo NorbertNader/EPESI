@@ -118,7 +118,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     
     public static function get_default_display_callback($type) {
     	$types = array('select', 'multiselect', 'commondata', 'autonumber', 'currency', 'checkbox', 
-    			'date', 'timestamp', 'time', 'long text');
+    			'date', 'timestamp', 'time', 'long text','file');
     	if (array_search($type, $types) !== false) {
     		return __CLASS__. '::display_' . self::get_field_id($type);
     	}
@@ -269,17 +269,6 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     }
 
     //region File
-    public static function recordbrowser_file_datatype($field = array())
-    {
-        //this runs on install
-        if (!isset($field['QFfield_callback'])) $field['QFfield_callback'] = array('Utils_RecordBrowserCommon', 'QFfield_file');
-        if (!isset($field['display_callback'])) $field['display_callback'] = array('Utils_RecordBrowserCommon', 'display_file');
-        $field['type'] = 'calculated';
-        $field['style'] = $field['param'];
-        $field['tooltip'] = isset($field['tooltip'])? $field['tooltip']: 0;
-        $field['param'] = Utils_RecordBrowserCommon::actual_db_type('text',128);
-        return $field;
-    }
 
     public static function display_file($r, $nolink=false, $desc=null, $tab=null)
     {
@@ -3301,7 +3290,7 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     public static function get_default_QFfield_callback($type) {
         $types = array('hidden', 'checkbox', 'calculated', 'integer', 'float',
             'currency', 'text', 'long text', 'date', 'timestamp', 'time',
-            'commondata', 'select', 'multiselect', 'autonumber');
+            'commondata', 'select', 'multiselect', 'autonumber','file');
         if (array_search($type, $types) !== false) {
             return __CLASS__. '::QFfield_' . self::get_field_id($type);
         }
@@ -3586,23 +3575,34 @@ class Utils_RecordBrowserCommon extends ModuleCommon {
     //region File
     public static function QFfield_file(&$form, $field, $label, $mode, $default, $desc, $rb_obj)
     {
-        if ($mode != 'add' && false == Utils_RecordBrowserCommon::QFfield_static_display($form, $field, $label, $mode, $default, $desc, $rb_obj)) {
-            $content = "<div id=\"dropzone\" class=\"dropzone " . $desc['id'] . "\"></div><br>";
-            load_css('modules/Utils/RecordBrowser/lib/dropzone/dist/basic.css');
-            load_css('modules/Utils/RecordBrowser/lib/dropzone/dist/dropzone.css');
-            load_js('modules/Utils/RecordBrowser/lib/dropzone/dist/dropzone.js');
-            eval_js('jq("div.dropzone.' . $desc['id'] . '").dropzone({ 
-            url:"'.EPESI_URL.'modules/Utils/RecordBrowser/fileupload.php?cid="+Epesi.client_id
+//	    if ($mode == 'add' || $mode == 'edit') {
+	    if ($mode != 'add' && false == Utils_RecordBrowserCommon::QFfield_static_display(
+			    $form,
+			    $field,
+			    $label,
+			    $mode,
+			    $default,
+			    $desc,
+			    $rb_obj)
+	    ) {
+		    $content = "<div id=\"dropzone\" class=\"dropzone " . $desc['id'] . "\"></div><br>";
+		    load_css('modules/Utils/RecordBrowser/lib/dropzone/dist/basic.css');
+		    load_css('modules/Utils/RecordBrowser/lib/dropzone/dist/dropzone.css');
+		    load_js('modules/Utils/RecordBrowser/lib/dropzone/dist/dropzone.js');
+		    eval_js('jq("div.dropzone.' . $desc['id'] . '").dropzone({ 
+            url:"' . EPESI_URL . 'modules/Utils/RecordBrowser/fileupload.php?cid="+Epesi.client_id
             +"&action=add&field=' . $desc['id'] . '",uploadMultiple:true,addRemoveLinks:true
             });
             jq("div.dropzone").parent().css("min-height","150px");
             ');
-
-            $content .= Utils_RecordBrowserCommon::get_val($rb_obj->tab, $desc['id'], $rb_obj->record, true);
-            $form->addElement('static', $field, $label, $content, array('id' => $field))->freeze();
-        } else {
-            Utils_RecordBrowserCommon::QFfield_calculated($form, $field, $label, $mode, $default, $desc, $rb_obj);
-        }
+		    $content .= self::display_file($rb_obj->record,false,$desc,$rb_obj->tab);
+		    $form->addElement('static', $field, $label);
+		    $form->setDefaults(array($field => $content));
+	    } else {
+		    $content = self::display_file($rb_obj->record,false,$desc,$rb_obj->tab);
+		    $form->addElement('static', $field, $label, $content);
+		    $form->setDefaults(array($field => $content));
+	    }
     }
 
     public static function soft_delete_file($file_id) {

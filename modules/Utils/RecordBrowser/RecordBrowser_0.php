@@ -1052,7 +1052,9 @@ class Utils_RecordBrowser extends Module {
         $this->prepare_view_entry_details($this->record, $mode=='history'?'view':$mode, $id, $form);
 
         if($mode == 'edit'){
-            $files = isset($_SESSION['client']['recordbrowser_file']) ? $_SESSION['client']['recordbrowser_file'][CID]['files'] : '';
+            $files = isset($_SESSION['client']['recordbrowser_file']) 
+                ? $_SESSION['client']['recordbrowser_file'][CID]['files'] 
+                : array();
             if (!empty($files) && $id!==null && is_numeric($id)) {
                 foreach ($files as $file) {
                     if (!empty($file['file']['name'])) {
@@ -1107,7 +1109,9 @@ class Utils_RecordBrowser extends Module {
                 if (!isset($values[$k])) $values[$k] = $v;
             if ($mode=='add') {
                 $id = Utils_RecordBrowserCommon::new_record($this->tab, $values);
-                $files = isset($_SESSION['client']['recordbrowser_file']) ? $_SESSION['client']['recordbrowser_file'][CID]['files'] : '';
+                $files = isset($_SESSION['client']['recordbrowser_file']) 
+                    ? $_SESSION['client']['recordbrowser_file'][CID]['files'] 
+                    : array();
                 if (!empty($files) && $id!==null && is_numeric($id)) {
                     foreach ($files as $file) {
                         if (!empty($file['file']['name'])) {
@@ -1877,7 +1881,8 @@ class Utils_RecordBrowser extends Module {
 				'text'=>__('Text'),
 				'long text'=>__('Long text'),
 				'select'=>__('Select field'),
-				'multiselect'=>__('Multiselect field')
+				'multiselect'=>__('Multiselect field'),
+                'file'=>__('File')
 			);
             if ($args['type'] == 'page_split')
                     $gb_row->add_data(
@@ -1968,7 +1973,7 @@ class Utils_RecordBrowser extends Module {
             'long text'=>__('Long text'),
             'select'=>__('Select field'),
             'calculated'=>__('Calculated'),
-            'recordbrowser_file'=>__('File')
+            'file'=>__('File')
 	
         );
         natcasesort($data_type);
