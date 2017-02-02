@@ -67,6 +67,7 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 
 		Base_PrintCommon::register_printer(new Utils_RecordBrowser_RecordPrinter());
 
+		// TODO: This needs to be added before installing any module that uses recordbrowser_file
 //		Utils_RecordBrowserCommon::register_datatype('recordbrowser_file', 'Utils_RecordBrowserCommon', 'recordbrowser_file_datatype');
 
 		DB::CreateTable('recordbrowser_files','
