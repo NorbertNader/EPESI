@@ -67,6 +67,8 @@ class Utils_RecordBrowserInstall extends ModuleInstall {
 
 		Base_PrintCommon::register_printer(new Utils_RecordBrowser_RecordPrinter());
 
+		Utils_RecordBrowserCommon::register_datatype('recordbrowser_file', 'Utils_RecordBrowserCommon', 'recordbrowser_file_datatype');
+
 		DB::CreateTable('recordbrowser_files','
 			id I4 AUTO KEY,
 			recordset C(255) NOTNULL,
