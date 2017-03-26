@@ -1,7 +1,7 @@
 ![Epesi Logo](/images/logo.png)
 =
 ![Travis CI](https://travis-ci.org/NorbertNader/EPESI.svg?branch=testing)
-[![SourceForge](https://img.shields.io/sourceforge/dt/epesi.svg)]()
+[![SourceForge](https://img.shields.io/sourceforge/dt/epesi.svg)](https://sourceforge.net/projects/epesi)
 
 <b>EPESI BIM</b> (Business Information Manager) is a fully functional web CRM/ERP application to store, organize, access and share business records. Manage your data precisely, flexibly and easily, simplifying internal communication and making work-flow more efficient.
 
